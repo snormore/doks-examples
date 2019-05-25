@@ -29,3 +29,13 @@ script/down
 ## Reference
 
  - https://istio.io/docs/setup/kubernetes/install/helm/
+
+## Screenshots
+
+### Istio Mesh Dashboard
+
+![Istio Mesh Dashboard Screenshot](images/mesh-dashboard.jpg?raw=true)
+
+### Istio Workload Dashboard
+
+![Istio Workload Dashboard Screenshot](images/workload-dashboard.jpg?raw=true)
