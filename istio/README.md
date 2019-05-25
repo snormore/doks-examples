@@ -34,8 +34,8 @@ script/down
 
 ### Istio Mesh Dashboard
 
-![Istio Mesh Dashboard Screenshot](/images/mesh-dashboard.jpg?raw=true)
+![Istio Mesh Dashboard Screenshot](images/mesh-dashboard.png?raw=true)
 
 ### Istio Workload Dashboard
 
-![Istio Workload Dashboard Screenshot](/istio/images/workload-dashboard.jpg?raw=true)
+![Istio Workload Dashboard Screenshot](images/workload-dashboard.png?raw=true)
