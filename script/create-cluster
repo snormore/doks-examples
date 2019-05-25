@@ -15,9 +15,16 @@ NODE_SIZE="${NODE_SIZE:-s-1vcpu-2gb}"
 NODE_COUNT="${NODE_COUNT:-2}"
 VERSION="${VERSION:-1.14.2-do.0}"
 
+function save_kubeconfig() {
+    mkdir -p tmp
+    doctl k8s cluster kubeconfig show ${1} > tmp/${1}-kubeconfig.yaml
+    echo "KUBECONFIG=$(pwd)/tmp/${1}-kubeconfig.yaml"
+}
+
 # Check for existence of the cluster and create if necessary.
 if doctl k8s cluster get ${NAME} > /dev/null 2>&1; then
     echo "Cluster ${NAME} exists already, using it"
+    save_kubeconfig $NAME
 else
     # Create the cluster.
     echo "Creating cluster ${NAME}"
@@ -27,13 +34,18 @@ else
         --version ${VERSION} \
         --update-kubeconfig=false
 
-    # Sleep to avoid DNS cache race.
-    sleep 45
+    # Grab the cluster kubeconfig.
+    mkdir -p tmp
+    doctl k8s cluster kubeconfig show ${NAME} > tmp/${NAME}-kubeconfig.yaml
+    echo "$(pwd)/tmp/${NAME}-kubeconfig.yaml"
 
     # Wait for all the nodes to be Ready.
     echo "Waiting for nodes to be up and Ready"
     while ! kubectl get nodes ; do
         sleep 5
+        if [ $? == *"no such host"* ]; then
+            save_kubeconfig $NAME
+        fi
     done
     kubectl wait --for=condition=Ready nodes --all --timeout=300s
 fi

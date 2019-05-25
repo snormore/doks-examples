@@ -13,8 +13,7 @@ CLUSTER_NAME=${1:-metrics-demo}
 ../script/create-cluster ${CLUSTER_NAME}
 
 # Grab the cluster kubeconfig.
-export KUBECONFIG=$(../script/cluster-kubeconfig ${CLUSTER_NAME})
-echo "KUBECONFIG=${KUBECONFIG}"
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 
 # Install Helm/tiller and wait for it to be Ready.
 (

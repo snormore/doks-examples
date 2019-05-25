@@ -6,7 +6,7 @@ NAMESPACE="$2"
 while [ -z $EXTERNAL_IP ]; do
   EXTERNAL_IP=$(kubectl get service ${SERVICE} -n ${NAMESPACE} --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
   if [ -z "${EXTERNAL_IP}" ]; then
-    echo "Waiting for external IP..."
+    echo "Waiting for LoadBalancer service IP..."
     sleep 10
   fi
 done

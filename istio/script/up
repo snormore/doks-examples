@@ -13,8 +13,7 @@ CLUSTER_NAME=${1:-istio-demo}
 NODE_SIZE="s-2vcpu-4gb" ../script/create-cluster ${CLUSTER_NAME}
 
 # Grab the cluster kubeconfig.
-export KUBECONFIG=$(../script/cluster-kubeconfig ${CLUSTER_NAME})
-echo "KUBECONFIG=${KUBECONFIG}"
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 
 # Install metrics-server and Helm/tiller.
 (
@@ -23,7 +22,7 @@ echo "KUBECONFIG=${KUBECONFIG}"
 )
 
 # Install Istio with Grafana.
-NAMESPACE="istio-system"
+ISTIO_NAMESPACE="istio-system"
 ISTIO_PATH=$(pwd)/tmp/istio
 if [ ! -d ${ISTIO_PATH} ]; then
     (
@@ -31,26 +30,25 @@ if [ ! -d ${ISTIO_PATH} ]; then
         git clone https://github.com/istio/istio.git
     )
 fi
-kubectl create namespace ${NAMESPACE} || true
-helm upgrade istio-init --install ${ISTIO_PATH}/install/kubernetes/helm/istio-init --namespace ${NAMESPACE}
-CRD_COUNT="$(kubectl get crds | grep istio | wc -l | tr -d '[:space:]')"
+kubectl create namespace ${ISTIO_NAMESPACE} || true
+helm upgrade istio-init --install ${ISTIO_PATH}/install/kubernetes/helm/istio-init --namespace ${ISTIO_NAMESPACE}
 echo "Waiting for Istio CRDs to be created"
-kubectl wait --for=condition=Complete jobs -n ${NAMESPACE} --all
-helm upgrade istio --install ${ISTIO_PATH}/install/kubernetes/helm/istio --namespace ${NAMESPACE} --values ${ISTIO_PATH}/install/kubernetes/helm/istio/values-istio-demo.yaml --set grafana.enabled=true
+kubectl wait --for=condition=Complete jobs -n ${ISTIO_NAMESPACE} --all
+helm upgrade istio --install ${ISTIO_PATH}/install/kubernetes/helm/istio --namespace ${ISTIO_NAMESPACE} --values ${ISTIO_PATH}/install/kubernetes/helm/istio/values-istio-demo.yaml --set grafana.enabled=true
 kubectl scale deployment -n istio-system istio-policy istio-galley istio-ingressgateway istio-sidecar-injector --replicas 2
-kubectl wait --for=condition=Ready pods -l "release=istio" -n ${NAMESPACE} --timeout=120s
+kubectl wait --for=condition=Ready pods -l "release=istio" -n ${ISTIO_NAMESPACE} --timeout=120s
+
+# Install the BookInfo demo app.
+DEMO_NAMESPACE="bookinfo"
+kubectl create namespace ${DEMO_NAMESPACE} || true
+kubectl label namespace ${DEMO_NAMESPACE} istio-injection=enabled --overwrite
+kubectl apply -f ${ISTIO_PATH}/samples/bookinfo/platform/kube/bookinfo.yaml -n ${DEMO_NAMESPACE}
+kubectl wait --for=condition=Ready pods -l "app=ratings" -n ${DEMO_NAMESPACE} --timeout=120s
+kubectl apply -f ${ISTIO_PATH}/samples/bookinfo/networking/bookinfo-gateway.yaml -n ${DEMO_NAMESPACE}
 
 # Wait for istio ingress gateway to have a LB IP.
 echo "Waiting for istio-ingressgateway LB service to have an IP"
-../script/wait-for-service-lb istio-ingressgateway ${NAMESPACE}
-
-# Install the BookInfo demo app.
-NAMESPACE="bookinfo"
-kubectl create namespace ${NAMESPACE} || true
-kubectl label namespace ${NAMESPACE} istio-injection=enabled --overwrite
-kubectl apply -f ${ISTIO_PATH}/samples/bookinfo/platform/kube/bookinfo.yaml -n ${NAMESPACE}
-kubectl wait --for=condition=Ready pods -l "app=ratings" -n ${NAMESPACE} --timeout=120s
-kubectl apply -f ${ISTIO_PATH}/samples/bookinfo/networking/bookinfo-gateway.yaml -n ${NAMESPACE}
+../script/wait-for-service-lb istio-ingressgateway ${ISTIO_NAMESPACE}
 
 # Grab ingress gateway LB URL.
 GATEWAY_URL="$(kubectl get svc istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
