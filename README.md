@@ -5,4 +5,4 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - [loki](loki/) - a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus.
  - [linkerd](linkerd/) - a resilient service mesh for cloud native apps.
  - [istio](istio/) - an open platform for providing a uniform way to integrate microservices, manage traffic flow across microservices, enforce policies and aggregate telemetry data.
- - [monitoring](monitoring/) - combines [prometheus](prometheus/), [loko](loko/), and [linkerd](linkerd/) into a light-weight monitoring stack.
+ - [monitoring](monitoring/) - combines [prometheus](prometheus/), [loki](loki/), and [linkerd](linkerd/) into a light-weight monitoring stack.
