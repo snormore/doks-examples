@@ -26,7 +26,25 @@ The `up` script should be idempotent, so feel free to run more than once if some
 script/down
 ```
 
-# Reference
+## Reference
  - https://github.com/helm/charts/tree/master/stable/prometheus-operator
  - https://www.digitalocean.com/community/tutorials/how-to-set-up-digitalocean-kubernetes-cluster-monitoring-with-helm-and-prometheus-operator
 
+
+## Screenshots
+
+### Kubernetes / Nodes
+
+![Kubernetes / Nodes Dashboard Screenshot](images/k8s-nodes-dashboard.png?raw=true)
+
+### CoreDNS
+
+![CoreDNS Dashboard Screenshot](images/coredns-dashboard.png?raw=true)
+
+### Kubernetes / USE Method / Node
+
+![Kubernetes / USE Method / Node Dashboard Screenshot](images/k8s-node-use-method-dashboard.png?raw=true)
+
+### Kubernetes / USE Method / Cluster
+
+![Kubernetes / USE Method / Cluster Dashboard Screenshot](images/k8s-cluster-use-method-dashboard.png?raw=true)
