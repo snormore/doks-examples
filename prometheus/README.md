@@ -1,4 +1,4 @@
-# [Istio](https://istio.io/) on DOKS
+# [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/) on DOKS
 
 ## Getting Started
 
