@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+if [ -z "${1}" ]; then
+    echo "usage: create-cluster <cluster-name>"
+    exit 1
+fi
+set -euo pipefail
+
+NAME="${1}"
+REGION="${REGION:-sfo2}"
+NODE_SIZE="${NODE_SIZE:-s-1vcpu-2gb}"
+NODE_COUNT="${NODE_COUNT:-2}"
+
+# Check for existence of the cluster and create if necessary.
+if doctl k8s cluster get ${NAME} > /dev/null 2>&1; then
+    echo "Cluster ${NAME} exists already, using it"
+else
+    # Create the cluster.
+    echo "Creating cluster ${NAME}"
+    doctl k8s cluster create ${NAME} --region ${REGION} --node-pool "name=${NAME};size=${NODE_SIZE};count=${NODE_COUNT}"
+
+    # Wait for all the nodes to be Ready.
+    echo "Waiting for nodes to be up and Ready"
+    while ! kubectl get nodes ; do
+        sleep 5
+    done
+    kubectl wait --for=condition=Ready nodes --all --timeout=300s
+fi

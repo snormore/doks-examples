@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+if [ -z "${1}" ]; then
+    echo "usage: delete-cluster <cluster-name>"
+    exit 1
+fi
+set -euo pipefail
+
+export NAME="${1}"
+
+# Delete the cluster.
+doctl k8s cluster delete ${NAME} -f
