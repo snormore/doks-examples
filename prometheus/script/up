@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+set -euo pipefail
+mkdir -p tmp
+
+# Grab the cluster name with a default of "prometheus-demo".
+CLUSTER_NAME=${1:-prometheus-demo}
+
+# Create the cluster or use the existing.
+NODE_SIZE="s-2vcpu-4gb" ../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Install metrics-server and Helm/tiller.
+(
+    cd ../metrics-server
+    script/up ${CLUSTER_NAME}
+)
+
+# Install Prometheus with Grafana.
+NAMESPACE="prometheus"
+helm upgrade prometheus --install --namespace ${NAMESPACE} -f values.yaml stable/prometheus-operator
+echo "Waiting for pods to be up"
+kubectl wait --for=condition=Ready pods -l "release=prometheus" -n ${NAMESPACE} --timeout=120s
+
+# Forward the Grafana port for our dashboards.
+echo "Grafana: http://localhost:8000/"
+echo "kubectl port-forward -n ${NAMESPACE} svc/prometheus-grafana 8000:80"
+kubectl port-forward -n ${NAMESPACE} svc/prometheus-grafana 8000:80
