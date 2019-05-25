@@ -32,10 +32,10 @@ script/down
 
 ## Screenshots
 
-### Istio Mesh Dashboard
-
-![Istio Mesh Dashboard Screenshot](images/mesh-dashboard.png?raw=true)
-
 ### Istio Workload Dashboard
 
 ![Istio Workload Dashboard Screenshot](images/workload-dashboard.png?raw=true)
+
+### Istio Mesh Dashboard
+
+![Istio Mesh Dashboard Screenshot](images/mesh-dashboard.png?raw=true)
