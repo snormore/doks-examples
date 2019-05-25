@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+set -euo pipefail
+mkdir -p tmp
+
+# Grab the cluster name with a default of "istio-demo".
+CLUSTER_NAME=${1:-istio-demo}
+
+# Create the cluster or use the existing.
+NODE_SIZE="s-2vcpu-4gb" ../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG=$(../script/cluster-kubeconfig ${CLUSTER_NAME})
+echo "KUBECONFIG=${KUBECONFIG}"
+
+# Install metrics-server and Helm/tiller.
+(
+    cd ../metrics-server
+    script/up ${CLUSTER_NAME}
+)
+
+# Install Istio with Grafana.
+NAMESPACE="istio-system"
+ISTIO_PATH=$(pwd)/tmp/istio
+if [ ! -d ${ISTIO_PATH} ]; then
+    (
+        cd $(dirname ${ISTIO_PATH})
+        git clone https://github.com/istio/istio.git
+    )
+fi
+kubectl create namespace ${NAMESPACE} || true
+helm upgrade istio-init --install ${ISTIO_PATH}/install/kubernetes/helm/istio-init --namespace ${NAMESPACE}
+CRD_COUNT="$(kubectl get crds | grep istio | wc -l | tr -d '[:space:]')"
+echo "Waiting for Istio CRDs to be created"
+kubectl wait --for=condition=Complete jobs -n ${NAMESPACE} --all
+helm upgrade istio --install ${ISTIO_PATH}/install/kubernetes/helm/istio --namespace ${NAMESPACE} --values ${ISTIO_PATH}/install/kubernetes/helm/istio/values-istio-demo.yaml --set grafana.enabled=true
+kubectl scale deployment -n istio-system istio-policy istio-galley istio-ingressgateway istio-sidecar-injector --replicas 2
+kubectl wait --for=condition=Ready pods -l "release=istio" -n ${NAMESPACE} --timeout=120s
+
+# Wait for istio ingress gateway to have a LB IP.
+echo "Waiting for istio-ingressgateway LB service to have an IP"
+../script/wait-for-service-lb istio-ingressgateway ${NAMESPACE}
+
+# Install the BookInfo demo app.
+NAMESPACE="bookinfo"
+kubectl create namespace ${NAMESPACE} || true
+kubectl label namespace ${NAMESPACE} istio-injection=enabled --overwrite
+kubectl apply -f ${ISTIO_PATH}/samples/bookinfo/platform/kube/bookinfo.yaml -n ${NAMESPACE}
+kubectl wait --for=condition=Ready pods -l "app=ratings" -n ${NAMESPACE} --timeout=120s
+kubectl apply -f ${ISTIO_PATH}/samples/bookinfo/networking/bookinfo-gateway.yaml -n ${NAMESPACE}
+
+# Grab ingress gateway LB URL.
+GATEWAY_URL="$(kubectl get svc istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
+curl -s http://${GATEWAY_URL}/productpage | grep -o "<title>.*</title>"
+echo "BookInfo demo: http://${GATEWAY_URL}/productpage"
+
+# Forward the Grafana port for our dashboards.
+echo "Grafana: http://localhost:3000/"
+kubectl port-forward -n istio-system svc/grafana 3000:3000
