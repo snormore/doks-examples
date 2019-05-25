@@ -5,4 +5,4 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - [linkerd](linkerd/) - a resilient service mesh for cloud native apps.
  - [prometheus](prometheus/) - a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts if some condition is observed to be true.
  - [loki](loki/) - a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus.
- - [monitoring]](monitoring/) - combines [prometheus](prometheus/), [loko](loko/), and [linkerd](linkerd/) into a light-weight monitoring stack.
+ - [monitoring](monitoring/) - combines [prometheus](prometheus/), [loko](loko/), and [linkerd](linkerd/) into a light-weight monitoring stack.
