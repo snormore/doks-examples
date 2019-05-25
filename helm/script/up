@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+set -euo pipefail
+
+# Grab the cluster name with a default of "istio".
+CLUSTER_NAME=${1:-helm-demo}
+
+# Create the cluster or use the existing.
+../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG=$(../script/cluster-kubeconfig ${CLUSTER_NAME})
+echo "KUBECONFIG=${KUBECONFIG}"
+
+# Install Helm/tiller and wait for it to be Ready.
+kubectl apply -f rbac-config.yaml
+helm init --service-account tiller --history-max 200
+kubectl wait --for=condition=Ready pods -l "name=tiller" -n kube-system
