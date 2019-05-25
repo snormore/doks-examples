@@ -24,3 +24,4 @@ echo "KUBECONFIG=${KUBECONFIG}"
 
 # Install metrics-server
 helm upgrade metrics-server --install --namespace metrics -f ../metrics-server/values.yaml stable/metrics-server
+kubectl wait --for=condition=Ready pods -l "release=metrics-server" -n ${NAMESPACE} --timeout=120s

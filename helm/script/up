@@ -18,4 +18,4 @@ echo "KUBECONFIG=${KUBECONFIG}"
 # Install Helm/tiller and wait for it to be Ready.
 kubectl apply -f rbac-config.yaml
 helm init --service-account tiller --history-max 200
-kubectl wait --for=condition=Ready pods -l "name=tiller" -n kube-system --timeout=120s
+kubectl wait --for=condition=Ready pods -l "name=tiller" -n kube-system --timeout=300s

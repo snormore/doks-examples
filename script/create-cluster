@@ -20,7 +20,10 @@ if doctl k8s cluster get ${NAME} > /dev/null 2>&1; then
 else
     # Create the cluster.
     echo "Creating cluster ${NAME}"
-    doctl k8s cluster create ${NAME} --region ${REGION} --node-pool "name=${NAME};size=${NODE_SIZE};count=${NODE_COUNT}"
+    doctl k8s cluster create ${NAME} --region ${REGION} --node-pool "name=${NAME};size=${NODE_SIZE};count=${NODE_COUNT}" --update-kubeconfig
+
+    # Sleep to avoid DNS cache race.
+    sleep 10
 
     # Wait for all the nodes to be Ready.
     echo "Waiting for nodes to be up and Ready"

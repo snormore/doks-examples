@@ -8,7 +8,7 @@ git clone git@github.com:snormore/doks-examples
 cd doks-examples/istio
 ```
 
-Create a cluster with default name `istio-demo` and install [Istio](https://istio.io/):
+Create a cluster with default name `istio-demo` and install [Istio](https://istio.io/) with the BookInfo demo app:
 ```
 script/up
 ```
