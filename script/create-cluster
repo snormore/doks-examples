@@ -37,15 +37,19 @@ else
     # Grab the cluster kubeconfig.
     mkdir -p tmp
     doctl k8s cluster kubeconfig show ${NAME} > tmp/${NAME}-kubeconfig.yaml
-    echo "$(pwd)/tmp/${NAME}-kubeconfig.yaml"
+    export KUBECONFIG="$(pwd)/tmp/${NAME}-kubeconfig.yaml"
+    echo "KUBECONFIG=${KUBECONFIG}"
 
     # Wait for all the nodes to be Ready.
     echo "Waiting for nodes to be up and Ready"
-    while ! kubectl get nodes ; do
+    while ! kubectl get nodes; do
         sleep 5
-        if [ $? == *"no such host"* ]; then
-            save_kubeconfig $NAME
-        fi
+        # if [ $? == *"no such host"* ]; then
+        #     save_kubeconfig $NAME
+        # fi
+    done
+    while [ "$(kubectl get nodes | wc -l | tr -d '[:space:]')" == "0" ]; do
+        sleep 5
     done
     kubectl wait --for=condition=Ready nodes --all --timeout=300s
 fi
