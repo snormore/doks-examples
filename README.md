@@ -2,15 +2,9 @@ A repo of DigitalOcean Kubernetes examples with scripts for setup.
 
 # Examples
 
- - [helm](helm/)
- - [metrics-server](metrics-server/)
- - [istio](istio/)
-
-
-# TODO
-
- - [ ] Monitoring with prometheus-operator, Grafana, kube-state-metrics, and node_exporter
- - [ ] Linkerd
- - [ ] Basic LoadBalancer service with SSL via Let's Encrypt
- - [ ] Traefik
- - [ ] HPA / VPA
+ - [metrics-server](metrics-server/) - a cluster-wide aggregator of resource usage data.
+ - [istio](istio/) - an open platform for providing a uniform way to integrate microservices, manage traffic flow across microservices, enforce policies and aggregate telemetry data.
+ - [linkerd](linkerd/) - a resilient service mesh for cloud native apps.
+ - [prometheus](prometheus/) - a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts if some condition is observed to be true.
+ - [loko](loko/) - a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus.
+ - [monitoring]](monitoring/) - combines [prometheus](prometheus/), [loko](loko/), and [linkerd](linkerd/) into a light-weight monitoring stack.
