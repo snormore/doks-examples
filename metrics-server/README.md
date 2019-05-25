@@ -1,4 +1,4 @@
-# [`metrics-service`](https://github.com/kubernetes-incubator/metrics-server) on DOKS
+# [Metrics Server](https://github.com/kubernetes-incubator/metrics-server) on DOKS
 
 ## Getting Started
 
