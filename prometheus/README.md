@@ -1,4 +1,4 @@
-# [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/) on DOKS
+# [Prometheus](https://prometheus.io/) on DOKS
 
 ## Getting Started
 
