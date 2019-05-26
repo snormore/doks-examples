@@ -4,6 +4,8 @@ if [ ! -z "${DEBUG}" ]; then
     set -x
 fi
 TEST=${TEST:-}
+WITHOUT_GRAFANA=${WITHOUT_GRAFANA:-}
+NAMESPACE=${NAMESPACE:-loki}
 set -euo pipefail
 mkdir -p tmp
 
@@ -23,17 +25,18 @@ export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 )
 
 # Install Loki.
-NAMESPACE="loki"
 helm repo add loki https://grafana.github.io/loki/charts
 helm repo update
 helm upgrade --install --namespace ${NAMESPACE} loki loki/loki-stack
-echo "Waiting for pods to be up"
+echo "Waiting for pods to be Ready"
 kubectl wait --for=condition=Ready pods -l "release=loki" -n ${NAMESPACE} --timeout=120s
 
-# Deploy Grafana.
-helm upgrade --install --namespace ${NAMESPACE} grafana stable/grafana -f grafana-values.yaml
-echo "Waiting for pods to be up"
-kubectl wait --for=condition=Ready pods -l "release=grafana" -n ${NAMESPACE} --timeout=120s
+if [ -z "${WITHOUT_GRAFANA}" ]; then
+    # Deploy Grafana.
+    helm upgrade --install --namespace ${NAMESPACE} grafana stable/grafana -f grafana-values.yaml
+    echo "Waiting for pods to be Ready"
+    kubectl wait --for=condition=Ready pods -l "release=grafana" -n ${NAMESPACE} --timeout=120s
+fi
 
 # Forward the Grafana port for our dashboards.
 echo "Grafana: http://localhost:8001/explore"

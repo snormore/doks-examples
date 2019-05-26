@@ -23,5 +23,8 @@ export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 
 # Install metrics-server
 NAMESPACE="metrics"
+echo "Install metrics-server via Helm"
 helm upgrade metrics-server --install --namespace ${NAMESPACE} -f ../metrics-server/values.yaml stable/metrics-server
+echo "Waiting for pods to be Ready"
 kubectl wait --for=condition=Ready pods -l "release=metrics-server" -n ${NAMESPACE} --timeout=120s
+echo "🎉"

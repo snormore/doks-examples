@@ -4,6 +4,8 @@ if [ ! -z "${DEBUG}" ]; then
     set -x
 fi
 TEST=${TEST:-}
+HELM_VALUES=${HELM_VALUES:-values.yaml}
+NAMESPACE=${NAMESPACE:-prometheus}
 set -euo pipefail
 mkdir -p tmp
 
@@ -23,12 +25,13 @@ export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 )
 
 # Install Prometheus with Grafana.
-NAMESPACE="prometheus"
-helm upgrade prometheus --install --namespace ${NAMESPACE} -f values.yaml stable/prometheus-operator
-echo "Waiting for pods to be up"
-kubectl wait --for=condition=Ready pods -l "release=prometheus" -n ${NAMESPACE} --timeout=120s
+helm upgrade prometheus --install --namespace ${NAMESPACE} -f ${HELM_VALUES} stable/prometheus-operator
+echo "Waiting for pods to be Ready"
+kubectl wait --for=condition=Ready pods -l "release=prometheus" -n ${NAMESPACE} --timeout=300s
+kubectl wait --for=condition=Ready pods -l "app=prometheus" -n ${NAMESPACE} --timeout=120s
 
 # Forward the Grafana port for our dashboards.
+echo "🎉"
 echo "Grafana: http://localhost:8000/"
 echo "kubectl port-forward -n ${NAMESPACE} svc/prometheus-grafana 8000:80"
 if [ -z "${TEST}" ]; then

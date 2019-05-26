@@ -3,6 +3,7 @@ DEBUG=${DEBUG:-}
 if [ ! -z "${DEBUG}" ]; then
     set -x
 fi
+TEST=${TEST:-}
 set -euo pipefail
 mkdir -p tmp
 
@@ -52,6 +53,7 @@ echo "Waiting for istio-ingressgateway LB service to have an IP"
 
 # Grab ingress gateway LB URL.
 GATEWAY_URL="$(kubectl get svc istio-ingressgateway -n ${ISTIO_NAMESPACE} -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
+echo "curl -s http://${GATEWAY_URL}/productpage"
 curl -s http://${GATEWAY_URL}/productpage | grep -o "<title>.*</title>"
 echo "BookInfo demo: http://${GATEWAY_URL}/productpage"
 
@@ -59,6 +61,7 @@ echo "BookInfo demo: http://${GATEWAY_URL}/productpage"
 echo "Grafana: http://localhost:3000/"
 echo "- Username: $(kubectl get secret grafana -n ${ISTIO_NAMESPACE} -ojsonpath='{.data.admin-user}' | base64 --decode)"
 echo "- Password: $(kubectl get secret grafana -n ${ISTIO_NAMESPACE} -ojsonpath='{.data.admin-password}' | base64 --decode)"
+echo "🎉"
 echo "kubectl port-forward -n ${ISTIO_NAMESPACE} svc/grafana 3000:3000"
 if [ -z "${TEST}" ]; then
     kubectl port-forward -n ${ISTIO_NAMESPACE} svc/grafana 3000:3000
