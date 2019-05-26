@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLUSTER_NAME="$1"
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Uninject existing linkerd data plane.
+kubectl get --all-namespaces daemonset,deploy,job,statefulset \
+    -l "linkerd.io/control-plane-ns" -o yaml \
+  | linkerd uninject - \
+  | kubectl apply -f - || true
+
+# Delete linkerd control plane.
+linkerd install --ignore-cluster | kubectl delete -f - || true
+
+# Delete the example namespaces.
+kubectl delete namespace linkerd emojivoto || true

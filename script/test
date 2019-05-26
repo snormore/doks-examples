@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DEFAULT_CLUSTER_NAME="doks-examples-test-$(date +%s)"
+CLUSTER_NAME=${1:-$DEFAULT_CLUSTER_NAME}
+echo "Cluster: ${CLUSTER_NAME}"
+
+# Delete the cluster on exit.
+function finish {
+  script/delete-cluster ${CLUSTER_NAME}
+}
+trap finish EXIT
+
+# Spin up the cluster.
+NODE_SIZE="s-2vcpu-4gb" script/create-cluster ${CLUSTER_NAME}
+
+# Test the linkerd example
+(
+  cd linkerd
+  echo "Testing the linkerd example"
+  TEST=1 script/up ${CLUSTER_NAME}
+  script/clean ${CLUSTER_NAME}
+)
+
+# Test the prometheus example
+(
+  cd prometheus
+  echo "Testing the prometheus example"
+  TEST=1 script/up ${CLUSTER_NAME}
+  script/clean ${CLUSTER_NAME}
+)
+
+# Test the loki example
+(
+  cd loki
+  echo "Testing the loki example"
+  TEST=1 script/up ${CLUSTER_NAME}
+  script/clean ${CLUSTER_NAME}
+)
+
+# Test the istio example
+(
+  cd istio
+  echo "Testing the istio example"
+  TEST=1 script/up ${CLUSTER_NAME}
+  script/clean ${CLUSTER_NAME}
+)

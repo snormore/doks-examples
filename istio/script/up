@@ -59,6 +59,7 @@ echo "BookInfo demo: http://${GATEWAY_URL}/productpage"
 echo "Grafana: http://localhost:3000/"
 echo "- Username: $(kubectl get secret grafana -n ${ISTIO_NAMESPACE} -ojsonpath='{.data.admin-user}' | base64 --decode)"
 echo "- Password: $(kubectl get secret grafana -n ${ISTIO_NAMESPACE} -ojsonpath='{.data.admin-password}' | base64 --decode)"
+echo "🎉"
 echo "kubectl port-forward -n ${ISTIO_NAMESPACE} svc/grafana 3000:3000"
 if [ -z "${TEST}" ]; then
     kubectl port-forward -n ${ISTIO_NAMESPACE} svc/grafana 3000:3000

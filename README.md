@@ -1,10 +1,13 @@
 A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubernetes/) examples with scripts for setup and testing.
 
+[![Build Status](https://travis-ci.org/snormore/doks-examples.svg?branch=master)](https://travis-ci.org/snormore/doks-examples)
+
 ## Usage
 
  - Install [`doctl`](https://github.com/digitalocean/doctl) and authenticate with your account using `doctl auth init`.
  - `cd` into the directory of an example and run `script/up` to spin up a cluster with the example stack, and `script/down` to delete the cluster and everything on it.
  - If you hit a problem, [open an issue](https://github.com/snormore/doks-examples/issues/new) or [PR the fix](https://github.com/snormore/doks-examples/pulls)!
+ - Note that associated DigitalOcean LBs and Volumes are not cleaned up by the scripts, you have to do that manually for now.
 
 ## Examples
 
@@ -14,3 +17,12 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - [linkerd](linkerd/) - a resilient service mesh for cloud native apps.
  - [istio](istio/) - an open platform for providing a uniform way to integrate microservices, manage traffic flow across microservices, enforce policies and aggregate telemetry data.
  - [monitoring](monitoring/) - combines [prometheus](prometheus/), [loki](loki/), and [linkerd](linkerd/) into a light-weight monitoring stack.
+
+## Wishlist / TODO
+
+ - HPA / VPA examples
+ - Traefik example
+ - Consolidate Grafana and namespaces in monitoring example into just 1
+ - Monitoring example scraping other clusters
+ - Google / Github auth proxy example
+ - Game server example

@@ -43,7 +43,7 @@ fi
 # Install the EmojiVoto demo app.
 DEMO_NAMESPACE="emojivoto"
 curl -sL https://run.linkerd.io/emojivoto.yml | kubectl apply -f -
-kubectl wait --for=condition=Ready pods --all -n ${DEMO_NAMESPACE} --timeout=120s
+kubectl wait --for=condition=Ready pods --all -n ${DEMO_NAMESPACE} --timeout=300s
 
 # Add linkerd to the demo app.
 kubectl get -n emojivoto deploy -o yaml | linkerd inject - | kubectl apply -f -
@@ -58,6 +58,7 @@ SERVICE_IP="$(kubectl get svc web-svc -n ${DEMO_NAMESPACE} -ojsonpath='{.status.
 echo "EmojiVoto demo: http://${SERVICE_IP}"
 
 # Forward the Grafana port for our dashboards.
+echo "🎉"
 echo "linkerd dashboard"
 if [ -z "${TEST}" ]; then
     linkerd dashboard --show=url
