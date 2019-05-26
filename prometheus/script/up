@@ -28,6 +28,7 @@ export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 helm upgrade prometheus --install --namespace ${NAMESPACE} -f ${HELM_VALUES} stable/prometheus-operator
 echo "Waiting for pods to be Ready"
 kubectl wait --for=condition=Ready pods -l "release=prometheus" -n ${NAMESPACE} --timeout=300s
+kubectl wait --for=condition=Ready pods -l "app=prometheus" -n ${NAMESPACE} --timeout=120s
 
 # Forward the Grafana port for our dashboards.
 echo "🎉"

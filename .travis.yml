@@ -9,6 +9,7 @@ before_script:
   - go get -u github.com/digitalocean/doctl/cmd/doctl
   - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/kubectl
   - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+  - curl -sL https://run.linkerd.io/install | sh && export PATH=$PATH:$HOME/.linkerd2/bin
 
 script:
   - script/test
