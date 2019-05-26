@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+TEST=${TEST:-}
+set -euo pipefail
+mkdir -p tmp
+
+# Grab the cluster name with a default of "loki-demo".
+CLUSTER_NAME=${1:-loki-demo}
+
+# Create the cluster or use the existing.
+../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Install metrics-server and Helm/tiller.
+(
+    cd ../metrics-server
+    script/up ${CLUSTER_NAME}
+)
+
+# Install Loki.
+NAMESPACE="loki"
+helm repo add loki https://grafana.github.io/loki/charts
+helm repo update
+helm upgrade --install --namespace ${NAMESPACE} loki loki/loki-stack
+echo "Waiting for pods to be up"
+kubectl wait --for=condition=Ready pods -l "release=loki" -n ${NAMESPACE} --timeout=120s
+
+# Deploy Grafana.
+helm upgrade --install --namespace ${NAMESPACE} grafana stable/grafana -f grafana-values.yaml
+echo "Waiting for pods to be up"
+kubectl wait --for=condition=Ready pods -l "release=grafana" -n ${NAMESPACE} --timeout=120s
+
+# Forward the Grafana port for our dashboards.
+echo "Grafana: http://localhost:8001/explore"
+echo "- Username: $(kubectl get secret grafana -n ${NAMESPACE} -ojsonpath='{.data.admin-user}' | base64 --decode)"
+echo "- Password: $(kubectl get secret grafana -n ${NAMESPACE} -ojsonpath='{.data.admin-password}' | base64 --decode)"
+echo "kubectl port-forward -n ${NAMESPACE} svc/grafana 8001:80"
+if [ -z "${TEST}" ]; then
+    kubectl port-forward -n ${NAMESPACE} svc/grafana 8001:80
+fi
