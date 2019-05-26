@@ -58,4 +58,6 @@ echo "BookInfo demo: http://${GATEWAY_URL}/productpage"
 # Forward the Grafana port for our dashboards.
 echo "Grafana: http://localhost:3000/"
 echo "kubectl port-forward -n ${ISTIO_NAMESPACE} svc/grafana 3000:3000"
-kubectl port-forward -n ${ISTIO_NAMESPACE} svc/grafana 3000:3000
+if [ -z "${TEST}" ]; then
+    kubectl port-forward -n ${ISTIO_NAMESPACE} svc/grafana 3000:3000
+fi

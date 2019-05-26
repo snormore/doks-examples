@@ -44,9 +44,6 @@ else
     echo "Waiting for nodes to be up and Ready"
     while ! kubectl get nodes; do
         sleep 5
-        # if [ $? == *"no such host"* ]; then
-        #     save_kubeconfig $NAME
-        # fi
     done
     while [ "$(kubectl get nodes | wc -l | tr -d '[:space:]')" == "0" ]; do
         sleep 5

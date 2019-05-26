@@ -30,4 +30,6 @@ kubectl wait --for=condition=Ready pods -l "release=prometheus" -n ${NAMESPACE} 
 # Forward the Grafana port for our dashboards.
 echo "Grafana: http://localhost:8000/"
 echo "kubectl port-forward -n ${NAMESPACE} svc/prometheus-grafana 8000:80"
-kubectl port-forward -n ${NAMESPACE} svc/prometheus-grafana 8000:80
+if [ -z "${TEST}" ]; then
+    kubectl port-forward -n ${NAMESPACE} svc/prometheus-grafana 8000:80
+fi
