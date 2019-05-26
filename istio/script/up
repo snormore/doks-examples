@@ -3,6 +3,7 @@ DEBUG=${DEBUG:-}
 if [ ! -z "${DEBUG}" ]; then
     set -x
 fi
+DEBUG=${TEST:-}
 set -euo pipefail
 mkdir -p tmp
 
