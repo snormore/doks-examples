@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLUSTER_NAME="$1"
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Call clean on each of the dependencies.
+(
+    cd ../prometheus
+    script/clean ${CLUSTER_NAME}
+)
+(
+    cd ../loki
+    script/clean ${CLUSTER_NAME}
+)
+(
+    cd ../linkerd
+    script/clean ${CLUSTER_NAME}
+)
+echo "Cleaned"

@@ -1,0 +1,57 @@
+# Define persistent storage for Prometheus (PVC)
+prometheus:
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: do-block-storage
+          resources:
+            requests:
+              storage: 5Gi
+
+grafana:
+  # Set password for Grafana admin user
+  adminPassword: admin
+
+  # Define persistent storage for Grafana (PVC)
+  persistence:
+    enabled: true
+    storageClassName: do-block-storage
+    accessModes: ["ReadWriteOnce"]
+    size: 5Gi
+
+  # Define initial datasources for Grafana.
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki.monitoring:3100
+      access: proxy
+    - name: Prometheus-linkerd
+      type: prometheus
+      url: http://linkerd-prometheus.linkerd:9090
+      access: proxy
+
+# Define persistent storage for Alertmanager (PVC)
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: do-block-storage
+          resources:
+            requests:
+              storage: 5Gi
+
+# Disable Etcd metrics
+kubeEtcd:
+  enabled: false
+
+# Disable Controller metrics
+kubeControllerManager:
+  enabled: false
+
+# Disable Scheduler metrics
+kubeScheduler:
+  enabled: false

@@ -27,9 +27,14 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
 
 ## Wishlist / TODO
 
- - HPA / VPA examples
- - Traefik example
+ - HPA / VPA
+ - Traefik ingress
+ - Nginx ingress
  - Consolidate Grafana and namespaces in monitoring example into just 1
  - Monitoring example scraping other clusters
- - Google / Github auth proxy example
- - Game server example
+ - Google / Github auth proxy
+ - Game server
+ - Big data / Spark / HDFS
+ - Gitlab
+ - OpenFaaS
+ - Wordpress app

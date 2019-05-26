@@ -53,9 +53,12 @@ echo "Waiting for istio-ingressgateway LB service to have an IP"
 
 # Grab ingress gateway LB URL.
 GATEWAY_URL="$(kubectl get svc istio-ingressgateway -n ${ISTIO_NAMESPACE} -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
-echo "curl -s http://${GATEWAY_URL}/productpage"
-curl -s http://${GATEWAY_URL}/productpage | grep -o "<title>.*</title>"
-echo "BookInfo demo: http://${GATEWAY_URL}/productpage"
+ENDPOINT="http://${GATEWAY_URL}/productpage"
+echo "Waiting for ${ENDPOINT} to return OK 200"
+timeout 120 bash -c "while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${ENDPOINT})" != '200' ]]; do sleep 5; done" || false
+echo "curl -s ${ENDPOINT}"
+curl -s ${ENDPOINT} | grep -o "<title>.*</title>"
+echo "BookInfo demo: ${ENDPOINT}"
 
 # Forward the Grafana port for our dashboards.
 echo "Grafana: http://localhost:3000/"

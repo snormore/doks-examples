@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+set -euo pipefail
+mkdir -p tmp
+
+# Grab the cluster name with a default of "monitoring-demo".
+CLUSTER_NAME=${1:-monitoring-demo}
+
+# Create the cluster or use the existing.
+NODE_SIZE="s-2vcpu-4gb" ../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Install metrics-server.
+(
+    cd ../metrics-server
+    TEST=1 script/up ${CLUSTER_NAME}
+)
+
+# Install linkerd with Grafana.
+(
+    cd ../linkerd
+    TEST=1 script/up ${CLUSTER_NAME}
+)
+
+# Install loki with Grafana.
+(
+    cd ../loki
+    TEST=1 WITHOUT_GRAFANA=1 NAMESPACE=monitoring script/up ${CLUSTER_NAME}
+)
+
+# Install prometheus with Grafana.
+PROMETHEUS_HELM_VALUES="$(pwd)/values.yaml"
+(
+    cd ../prometheus
+    NAMESPACE=monitoring HELM_VALUES=${PROMETHEUS_HELM_VALUES} script/up ${CLUSTER_NAME}
+)
+
+echo "🎉"
