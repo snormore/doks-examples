@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+TEST=${TEST:-}
+set -euo pipefail
+
+# Grab the cluster name with a default of "linkerd-demo".
+CLUSTER_NAME=${1:-linkerd-demo}
+
+# Create the cluster or use the existing.
+../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Install metrics-server and Helm/tiller.
+(
+    cd ../metrics-server
+    script/up ${CLUSTER_NAME}
+)
+
+# Install the linkerd CLI tool.
+LINKERD_NAMESPACE="linkerd"
+curl -sL https://run.linkerd.io/install | sh
+export PATH=$PATH:$HOME/.linkerd2/bin
+linkerd version
+
+if ! kubectl get namespace linkerd; then
+    # Run the linkerd pre-checks.
+    linkerd check --pre
+
+    # Install linkerd onto the cluster.
+    linkerd install | kubectl apply -f -
+    linkerd check
+else
+    # Upgrade existing linkerd in the cluster.
+    linkerd upgrade | kubectl apply -f -
+    linkerd check
+fi
+
+# Install the EmojiVoto demo app.
+DEMO_NAMESPACE="emojivoto"
+curl -sL https://run.linkerd.io/emojivoto.yml | kubectl apply -f -
+kubectl wait --for=condition=Ready pods --all -n ${DEMO_NAMESPACE} --timeout=120s
+
+# Add linkerd to the demo app.
+kubectl get -n emojivoto deploy -o yaml | linkerd inject - | kubectl apply -f -
+linkerd -n ${DEMO_NAMESPACE} check --proxy
+
+# Wait for istio ingress gateway to have a LB IP.
+echo "Waiting for ${DEMO_NAMESPACE}/web-svc LB service to have an IP"
+../script/wait-for-service-lb web-svc ${DEMO_NAMESPACE}
+
+# Grab ingress gateway LB URL.
+SERVICE_IP="$(kubectl get svc web-svc -n ${DEMO_NAMESPACE} -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
+echo "EmojiVoto demo: http://${SERVICE_IP}"
+
+# Forward the Grafana port for our dashboards.
+echo "linkerd dashboard"
+if [ -z "${TEST}" ]; then
+    linkerd dashboard --show=url
+fi
