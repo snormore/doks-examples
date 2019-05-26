@@ -9,6 +9,13 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - If you hit a problem, [open an issue](https://github.com/snormore/doks-examples/issues/new) or [PR the fix](https://github.com/snormore/doks-examples/pulls)!
  - Note that associated DigitalOcean LBs and Volumes are not cleaned up by the scripts, you have to do that manually for now.
 
+## Prerequisites
+
+ - [doctl](https://github.com/digitalocean/doctl#installing-doctl)
+ - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+ - [helm](https://github.com/helm/helm/blob/master/docs/install.md)
+ - [linkerd](https://linkerd.io/2/getting-started/#step-1-install-the-cli) if you're using the [linkerd](linkerd/) or [monitoring](monitoring/) examples
+
 ## Examples
 
  - [metrics-server](metrics-server/) - a cluster-wide aggregator of resource usage data.
