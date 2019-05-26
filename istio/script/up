@@ -51,12 +51,14 @@ echo "Waiting for istio-ingressgateway LB service to have an IP"
 ../script/wait-for-service-lb istio-ingressgateway ${ISTIO_NAMESPACE}
 
 # Grab ingress gateway LB URL.
-GATEWAY_URL="$(kubectl get svc istio-ingressgateway -n istio-system -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
+GATEWAY_URL="$(kubectl get svc istio-ingressgateway -n ${ISTIO_NAMESPACE} -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
 curl -s http://${GATEWAY_URL}/productpage | grep -o "<title>.*</title>"
 echo "BookInfo demo: http://${GATEWAY_URL}/productpage"
 
 # Forward the Grafana port for our dashboards.
 echo "Grafana: http://localhost:3000/"
+echo "- Username: $(kubectl get secret grafana -n ${ISTIO_NAMESPACE} -ojsonpath='{.data.admin-user}' | base64 --decode)"
+echo "- Password: $(kubectl get secret grafana -n ${ISTIO_NAMESPACE} -ojsonpath='{.data.admin-password}' | base64 --decode)"
 echo "kubectl port-forward -n ${ISTIO_NAMESPACE} svc/grafana 3000:3000"
 if [ -z "${TEST}" ]; then
     kubectl port-forward -n ${ISTIO_NAMESPACE} svc/grafana 3000:3000
