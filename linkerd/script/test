@@ -11,4 +11,4 @@ function finish {
 trap finish EXIT
 
 # Spin up the cluster and install the stack.
-time script/up ${CLUSTER_NAME}
+TEST=1 script/up ${CLUSTER_NAME}
