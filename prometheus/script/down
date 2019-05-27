@@ -4,5 +4,8 @@ set -euo pipefail
 # Grab the cluster name with a default of "prometheus-demo".
 CLUSTER_NAME=${1:-prometheus-demo}
 
+# Run the clean script on down so associated LBs and volumes are deleted first.
+script/clean
+
 # Delete the cluster.
 ../script/delete-cluster ${CLUSTER_NAME}

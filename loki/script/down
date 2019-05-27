@@ -4,5 +4,8 @@ set -euo pipefail
 # Grab the cluster name with a default of "loki-demo".
 CLUSTER_NAME=${1:-loki-demo}
 
+# Run the clean script on down so associated LBs and volumes are deleted first.
+script/clean
+
 # Delete the cluster.
 ../script/delete-cluster ${CLUSTER_NAME}
