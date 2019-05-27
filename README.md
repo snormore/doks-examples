@@ -37,3 +37,4 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - Gitlab
  - OpenFaaS
  - Wordpress app
+ - Load Balancer via Cloudflare + HAProxy/Traefik/Nginx
