@@ -43,7 +43,7 @@ function save_kubeconfig() {
         mkdir -p tmp
         retry 10 doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
     else
-        "${KUBECONFIG} exists already, using it"
+        echo "${KUBECONFIG} exists already, using it"
     fi
     echo "KUBECONFIG=${KUBECONFIG}"
 }
