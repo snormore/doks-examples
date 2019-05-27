@@ -40,12 +40,13 @@ export KUBECONFIG="$(pwd)/tmp/${NAME}-kubeconfig.yaml"
 
 function save_kubeconfig() {
     mkdir -p tmp
-    doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
+    doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG} 2>&1
     echo "KUBECONFIG=${KUBECONFIG}"
 }
 
 # Check for existence of the cluster and create if necessary.
-if retry 3 doctl k8s cluster get ${NAME}; then
+echo "Cluster: ${NAME}"
+if retry 5 doctl k8s cluster get ${NAME} &> /dev/null; then
     echo "Cluster ${NAME} exists already, using it"
     retry 3 save_kubeconfig ${NAME}
 else
