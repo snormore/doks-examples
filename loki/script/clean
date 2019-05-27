@@ -8,3 +8,4 @@ export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 
 # Delete the example Helm installation.
 helm delete --purge loki || true
+kubectl delete psp -l "release=loki" -A || true

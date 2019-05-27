@@ -38,6 +38,14 @@ NODE_SIZE="s-2vcpu-4gb" script/create-cluster ${CLUSTER_NAME}
   script/clean ${CLUSTER_NAME}
 )
 
+# Test the monitoring example
+(
+  cd monitoring
+  echo "Testing the monitoring example"
+  TEST=1 script/up ${CLUSTER_NAME}
+  script/clean ${CLUSTER_NAME}
+)
+
 # Test the istio example
 (
   cd istio

@@ -8,6 +8,7 @@ export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 
 # Delete the example Helm installation.
 helm delete --purge prometheus || true
+kubectl delete psp -l "release=prometheus" -A || true
 
 # Delete prometheus CRDs.
 kubectl delete crd alertmanagers.monitoring.coreos.com prometheuses.monitoring.coreos.com prometheusrules.monitoring.coreos.com servicemonitors.monitoring.coreos.com || true
