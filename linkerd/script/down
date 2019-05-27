@@ -5,7 +5,7 @@ set -euo pipefail
 CLUSTER_NAME=${1:-linkerd-demo}
 
 # Run the clean script on down so associated LBs and volumes are deleted first.
-script/clean
+script/clean ${CLUSTER_NAME}
 
 # Delete the cluster.
 ../script/delete-cluster ${CLUSTER_NAME}
