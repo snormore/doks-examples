@@ -39,11 +39,17 @@ retry() {
 export KUBECONFIG="$(pwd)/tmp/${NAME}-kubeconfig.yaml"
 
 function save_kubeconfig() {
+    mkdir -p tmp
     if [ ! -f ${KUBECONFIG} ]; then
-        mkdir -p tmp
-        retry 10 doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
+        retry 5 doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
     else
-        echo "${KUBECONFIG} exists already, using it"
+        SERVER="$(cat ${KUBECONFIG} | grep "server:" | awk '{$1=$1};1' | cut -d ' ' -f 2)"
+        if ! ping -c 1 ${SERVER} &> /dev/null; then
+            echo "${KUBECONFIG} exists already but is not reachable, grabbing it again"
+            retry 5 doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
+        else
+            echo "${KUBECONFIG} exists already, using it"
+        fi
     fi
     echo "KUBECONFIG=${KUBECONFIG}"
 }
