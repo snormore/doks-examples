@@ -39,3 +39,5 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - Wordpress app
  - Load Balancer via Cloudflare + HAProxy/Traefik/Nginx
  - Kubeflow
+ - Rancher
+ - Rook
