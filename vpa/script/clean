@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLUSTER_NAME="$1"
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="$(pwd)/tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Delete the example namespace.
+kubectl delete namespace vpa || true
+
+# Delete the VPA installation.
+(
+    cd tmp/autoscaler/vertical-pod-autoscaler
+    ./hack/vpa-down.sh
+)

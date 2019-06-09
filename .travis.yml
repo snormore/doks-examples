@@ -9,6 +9,8 @@ env:
     EXAMPLE=local-pv
   - CLUSTER_VERSION=1.14.1-do.4
     EXAMPLE=hpa
+  - CLUSTER_VERSION=1.14.1-do.4
+    EXAMPLE=vpa
 
 before_script:
   - go get -u github.com/digitalocean/doctl/cmd/doctl

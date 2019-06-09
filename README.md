@@ -24,10 +24,11 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - [linkerd](linkerd/) - a resilient service mesh for cloud native apps.
  - [istio](istio/) - an open platform for providing a uniform way to integrate microservices, manage traffic flow across microservices, enforce policies and aggregate telemetry data.
  - [monitoring](monitoring/) - combines [prometheus](prometheus/), [loki](loki/), and [linkerd](linkerd/) into a light-weight monitoring stack.
+ - [HPA](hpa/) - automatically scales the number of pods in a replication controller, deployment or replica set based on observed CPU utilization (or, with custom metrics support, on some other application-provided metrics).
+ - [VPA](vpa/) - will set the requests automatically based on usage and thus allow proper scheduling onto nodes so that appropriate resource amount is available for each pod.
 
 ## Wishlist / TODO
 
- - HPA / VPA
  - Traefik ingress
  - Nginx ingress
  - Monitoring example scraping other clusters

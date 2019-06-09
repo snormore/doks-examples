@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Grab the cluster name with a default of "vpa-demo".
+CLUSTER_NAME=${1:-vpa-demo}
+
+# Run the clean script on down so associated LBs and volumes are deleted first.
+script/clean ${CLUSTER_NAME}
+
+# Delete the cluster.
+../script/delete-cluster ${CLUSTER_NAME}

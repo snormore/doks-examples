@@ -4,7 +4,6 @@ if [ ! -z "${DEBUG}" ]; then
     set -x
 fi
 TEST=${TEST:-}
-WITHOUT_GRAFANA=${WITHOUT_GRAFANA:-}
 NAMESPACE=${NAMESPACE:-hpa}
 set -euo pipefail
 mkdir -p tmp
