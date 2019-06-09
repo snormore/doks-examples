@@ -15,6 +15,7 @@ CLUSTER_NAME=${1:-local-pv-demo}
 export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 
 # Set some variables.
+NAMESPACE=${NAMESPACE:-local-pv}
 APP_NAME="example-local-pv"
 MOUNT_PATH="/mnt"
 FIRST_NODE_NAME="$(kubectl get nodes -ojsonpath='{.items[0].metadata.name}')"
@@ -22,24 +23,25 @@ SECOND_NODE_NAME="$(kubectl get nodes -ojsonpath='{.items[1].metadata.name}')"
 
 # Install the local PV.
 echo "Deploying ${APP_NAME} PV"
-kubectl apply -f storage-class.yaml
-kubectl delete pod ${APP_NAME}-1 ${APP_NAME}-2 || true
+kubectl create namespace ${NAMESPACE} || true
+kubectl apply -f storage-class.yaml -n ${NAMESPACE}
+kubectl delete pod ${APP_NAME}-1 ${APP_NAME}-2 -n ${NAMESPACE} || true
 
-kubectl patch pvc example-local-pv -p '{"metadata":{"finalizers":null}}' || true
-kubectl delete pvc ${APP_NAME} || true
-kubectl apply -f pvc.yaml
+kubectl patch pvc example-local-pv -p '{"metadata":{"finalizers":null}}' -n ${NAMESPACE} || true
+kubectl delete pvc ${APP_NAME} -n ${NAMESPACE} || true
+kubectl apply -f pvc.yaml -n ${NAMESPACE}
 
-kubectl patch pv example-local-pv -p '{"metadata":{"finalizers":null}}' || true
-kubectl delete pv ${APP_NAME} || true
-cat pv.yaml | sed 's/\$FIRST_NODE_NAME'"/${FIRST_NODE_NAME}/g" | kubectl apply -f -
+kubectl patch pv example-local-pv -p '{"metadata":{"finalizers":null}}' -n ${NAMESPACE} || true
+kubectl delete pv ${APP_NAME} -n ${NAMESPACE} || true
+cat pv.yaml | sed 's/\$FIRST_NODE_NAME'"/${FIRST_NODE_NAME}/g" | kubectl apply -n ${NAMESPACE} -f -
 
-cat pod-with-volume.yaml | sed 's/\$NODE_NAME'"/${FIRST_NODE_NAME}/g" | kubectl apply -f -
-cat pod-without-volume.yaml | sed 's/\$NODE_NAME'"/${SECOND_NODE_NAME}/g" | kubectl apply -f -
+cat pod-with-volume.yaml | sed 's/\$NODE_NAME'"/${FIRST_NODE_NAME}/g" | kubectl apply -n ${NAMESPACE} -f -
+cat pod-without-volume.yaml | sed 's/\$NODE_NAME'"/${SECOND_NODE_NAME}/g" | kubectl apply -n ${NAMESPACE} -f -
 
 # Wait for it to be Available.
 echo "Waiting for PV to be Available"
-while ! kubectl get pv ${APP_NAME} -ojson | jq -c 'select( .status.phase == "Available" )'; do
-    kubectl get pv ${APP_NAME} --no-headers
+while ! kubectl get pv ${APP_NAME} -n ${NAMESPACE} -ojson | jq -c 'select( .status.phase == "Available" )'; do
+    kubectl get pv ${APP_NAME} -n ${NAMESPACE} --no-headers
     sleep 10
 done
 
@@ -47,17 +49,17 @@ done
 echo "Validating ${APP_NAME}"
 
 echo "Creating test-file on the local volume from a pod on the first node"
-kubectl wait --for=condition=Ready pod/${APP_NAME}-1
-kubectl exec -it ${APP_NAME}-1 -- rm -f ${MOUNT_PATH}/test-file
-kubectl exec -it ${APP_NAME}-1 -- ls -alh ${MOUNT_PATH}
-kubectl exec -it ${APP_NAME}-1 -- bash -c "if [ -f ${MOUNT_PATH}/test-file ]; then exit 1; fi"
-kubectl exec -it ${APP_NAME}-1 -- touch ${MOUNT_PATH}/test-file
-kubectl exec -it ${APP_NAME}-1 -- ls -alh ${MOUNT_PATH}
-kubectl exec -it ${APP_NAME}-1 -- test -f ${MOUNT_PATH}/test-file
+kubectl wait --for=condition=Ready pod/${APP_NAME}-1 -n ${NAMESPACE}
+kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- rm -f ${MOUNT_PATH}/test-file
+kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- ls -alh ${MOUNT_PATH}
+kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- bash -c "if [ -f ${MOUNT_PATH}/test-file ]; then exit 1; fi"
+kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- touch ${MOUNT_PATH}/test-file
+kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- ls -alh ${MOUNT_PATH}
+kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- test -f ${MOUNT_PATH}/test-file
 
 echo "Checking for no test-file on the local volume from a pod on the other node"
-kubectl wait --for=condition=Ready pod/${APP_NAME}-2
-kubectl exec -it ${APP_NAME}-2 -- ls -alh ${MOUNT_PATH}
-kubectl exec -it ${APP_NAME}-2 -- bash -c "if [ -f ${MOUNT_PATH}/test-file ]; then exit 1; fi"
+kubectl wait --for=condition=Ready pod/${APP_NAME}-2 -n ${NAMESPACE}
+kubectl exec -it ${APP_NAME}-2 -n ${NAMESPACE} -- ls -alh ${MOUNT_PATH}
+kubectl exec -it ${APP_NAME}-2 -n ${NAMESPACE} -- bash -c "if [ -f ${MOUNT_PATH}/test-file ]; then exit 1; fi"
 
 echo "Looks good, 🎉"

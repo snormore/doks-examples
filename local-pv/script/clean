@@ -10,4 +10,5 @@ export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 kubectl patch pvc example-local-pv -p '{"metadata":{"finalizers":null}}' || true
 kubectl patch pv example-local-pv -p '{"metadata":{"finalizers":null}}' || true
 kubectl delete all -l "app=example-local-pv"
+kubectl delete namespace local-pv
 echo "Cleaned"
