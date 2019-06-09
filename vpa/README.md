@@ -8,7 +8,7 @@ git clone git@github.com:snormore/doks-examples
 cd doks-examples/vpa
 ```
 
-Create a cluster with default name `vpa-demo` and install [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler):
+Create a cluster with default name `vpa-demo` and install [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) with an example that that uses more CPU than is requested, and waits for resource/requests to scale up:
 ```
 script/up
 ```

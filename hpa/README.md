@@ -8,7 +8,7 @@ git clone git@github.com:snormore/doks-examples
 cd doks-examples/hpa
 ```
 
-Create a cluster with default name `hpa-demo` and install [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/):
+Create a cluster with default name `hpa-demo` and install [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) with an example that uses CPU, waits for replicas to be scaled up, stops using CPU, and waits for replicas to scale down.
 ```
 script/up
 ```
