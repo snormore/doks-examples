@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLUSTER_NAME="$1"
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Call clean on each of the dependencies.
+kubectl patch pvc example-local-pv -p '{"metadata":{"finalizers":null}}' || true
+kubectl patch pv example-local-pv -p '{"metadata":{"finalizers":null}}' || true
+kubectl delete all -l "app=example-local-pv"
+echo "Cleaned"

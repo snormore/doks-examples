@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-local-pv-2
+  labels:
+    app: example-local-pv
+spec:
+  containers:
+  - name: example-local-pv
+    image: ubuntu
+    command:
+    - sleep
+    - infinity
+  nodeSelector:
+    kubernetes.io/hostname: $NODE_NAME

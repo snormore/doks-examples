@@ -53,3 +53,11 @@ NODE_SIZE="s-2vcpu-4gb" script/create-cluster ${CLUSTER_NAME}
   TEST=1 script/up ${CLUSTER_NAME}
   script/clean ${CLUSTER_NAME}
 )
+
+# Test the local-pv example
+(
+  cd local-pv
+  echo "Testing the local-pv example"
+  TEST=1 script/up ${CLUSTER_NAME}
+  script/clean ${CLUSTER_NAME}
+)
