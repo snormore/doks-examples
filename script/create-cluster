@@ -41,13 +41,13 @@ export KUBECONFIG="$(pwd)/tmp/${NAME}-kubeconfig.yaml"
 function save_kubeconfig() {
     mkdir -p tmp
     if [ ! -f ${KUBECONFIG} ]; then
-        retry 5 doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
+        doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
     else
-        SERVER="$(cat ${KUBECONFIG} | grep "server:" | awk '{$1=$1};1' | cut -d ' ' -f 2 | awk -F[/:] '{print $4}' || true)"
+        SERVER="$(cat ${KUBECONFIG} | grep "server:" | awk '{$1=$1};1' | cut -d ' ' -f 2 || true)"
         echo "Cluster API: ${SERVER}"
-        if ! ping -c 1 ${SERVER} &> /dev/null; then
+        if ! curl -k ${SERVER} &> /dev/null; then
             echo "${KUBECONFIG} exists already but is not reachable, grabbing it again"
-            retry 5 doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
+            doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
         else
             echo "${KUBECONFIG} exists already, using it"
         fi
@@ -63,7 +63,7 @@ if retry 3 doctl k8s cluster get ${NAME} &> /dev/null; then
 else
     # Create the cluster.
     echo "Creating cluster ${NAME}"
-    retry 3 doctl k8s cluster create ${NAME} \
+    doctl k8s cluster create ${NAME} \
         --region ${REGION} \
         --node-pool "name=${NAME};size=${NODE_SIZE};count=${NODE_COUNT}" \
         --version ${VERSION} \
