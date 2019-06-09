@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+TEST=${TEST:-}
+NAMESPACE=${NAMESPACE:-vpa}
+set -euo pipefail
+mkdir -p tmp
+
+# Grab the cluster name with a default of "vpa-demo".
+CLUSTER_NAME=${1:-vpa-demo}
+
+# Create the cluster or use the existing.
+../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="$(pwd)/tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Install metrics-server and Helm/tiller.
+(
+    cd ../metrics-server
+    script/up ${CLUSTER_NAME}
+)
+
+# Install VPA
+echo "Installing VPA from github.com/kubernetes/autoscaler"
+if [ ! -d tmp/autoscaler ]; then
+    git clone https://github.com/kubernetes/autoscaler.git tmp/autoscaler
+fi
+(
+    cd tmp/autoscaler/vertical-pod-autoscaler
+    ./hack/vpa-up.sh
+)
+
+# Install a sample workload.
+kubectl create namespace ${NAMESPACE} || true
+kubectl apply -f hamster.yaml -n ${NAMESPACE}
+kubectl describe vpa -n ${NAMESPACE}
+
+# Wait for pod resources to be scaled.
+echo "Waiting for pod resources requests to be scaled"
+CPU_REQUESTS="$(kubectl get pod -n vpa -l "app=hamster" -ojson | jq --raw-output '.items[] | .spec.containers[0].resources.requests.cpu' | tr -d '[:space:]')"
+echo "CPU requests: ${CPU_REQUESTS}"
+while [[ "${CPU_REQUESTS}" == "10m" || "${CPU_REQUESTS}" == "10m10m" ]]; do
+    sleep 5
+    CPU_REQUESTS="$(kubectl get pod -n vpa -l "app=hamster" -ojson | jq --raw-output '.items[] | .spec.containers[0].resources.requests.cpu' | tr -d '[:space:]')"
+    echo "CPU requests: ${CPU_REQUESTS}"
+done
+
+# Success.
+echo "Looks good, 🎉"
