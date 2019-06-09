@@ -44,7 +44,8 @@ function save_kubeconfig() {
         retry 5 doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
     else
         SERVER="$(cat ${KUBECONFIG} | grep "server:" | awk '{$1=$1};1' | cut -d ' ' -f 2)"
-        if ! ping -c 1 ${SERVER} &> /dev/null; then
+        echo ${SERVER}
+        if ! ping -c 1 ${SERVER}; then
             echo "${KUBECONFIG} exists already but is not reachable, grabbing it again"
             retry 5 doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
         else
