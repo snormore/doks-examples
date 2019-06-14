@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DEFAULT_CLUSTER_NAME="kubedb-test-$(date +%s)"
+CLUSTER_NAME=${1:-$DEFAULT_CLUSTER_NAME}
+
+# Delete the cluster on exit.
+function finish {
+  script/down ${CLUSTER_NAME}
+}
+trap finish EXIT
+
+# Spin up the cluster and install the stack.
+TEST=1 script/up ${CLUSTER_NAME}
