@@ -43,3 +43,4 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - Rancher
  - Rook
  - GlusterFS
+ - KubeDB
