@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+TEST=${TEST:-}
+set -euo pipefail
+if [ "${DEBUG}" ]; then
+    set -x
+fi
+mkdir -p tmp
+
+# Grab the cluster name with a default of "kubedb-demo".
+CLUSTER_NAME=${1:-kubedb-demo}
+NAMESPACE="kubedb"
+
+# Create the cluster or use the existing.
+../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Install Helm/tiller.
+(
+    cd ../helm
+    script/up ${CLUSTER_NAME}
+)
+
+# Set up KubeDB helm chart source.
+helm repo add appscode https://charts.appscode.com/stable/
+helm update
+helm search appscode/kubedb
+helm upgrade kubedb-operator --install appscode/kubedb --version 0.12.0 --namespace ${NAMESPACE}
+kubectl get crds -l app=kubedb
+kubectl wait --for=condition=Ready pods -l "release=kubedb-operator" -n ${NAMESPACE} --timeout=120s
+
+# Install KubeDB.
+helm upgrade kubedb-catalog --install appscode/kubedb-catalog --version 0.12.0 --namespace ${NAMESPACE}
+kubectl wait --for=condition=Available apiservice --all --timeout=120s
+
+# Success
+echo "Looks good, 🎉"

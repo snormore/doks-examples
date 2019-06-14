@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLUSTER_NAME="$1"
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Delete the example Helm installation.
+helm delete --purge kubedb-operator || true

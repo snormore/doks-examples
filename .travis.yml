@@ -11,6 +11,8 @@ env:
     EXAMPLE=hpa
   - CLUSTER_VERSION=1.14.1-do.4
     EXAMPLE=vpa
+  - CLUSTER_VERSION=1.14.1-do.4
+    EXAMPLE=kubedb
 
 before_script:
   - go get -u github.com/digitalocean/doctl/cmd/doctl
