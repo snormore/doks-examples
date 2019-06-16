@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+set -euo pipefail
+
+# Grab the cluster name.
+CLUSTER_NAME=${1:-xfs-demo}
+
+# Create the cluster or use the existing.
+../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Set some variables.
+NAMESPACE=${NAMESPACE:-xfs}
+APP_NAME="example-xfs"
+MOUNT_PATH="/mnt"
+FIRST_NODE_NAME="$(kubectl get nodes -ojsonpath='{.items[0].metadata.name}')"
+SECOND_NODE_NAME="$(kubectl get nodes -ojsonpath='{.items[1].metadata.name}')"
+
+# Install XFS dependencies installer.
+# TODO: this is temporary until support is shipped in the upstream github.com/digitalocean/csi-digitalocean
+kubectl patch daemonset csi-do-node -n kube-system -p '{"spec":{"template":{"spec":{"containers":[{"name":"csi-do-plugin","image":"snormore/do-csi-plugin:v1.1.0-dev-xfs"}]}}}}'
+
+# Install.
+echo "Deploying ${APP_NAME} PV"
+kubectl create namespace ${NAMESPACE} || true
+kubectl apply -f storage-class.yaml -n ${NAMESPACE}
+kubectl apply -f pvc.yaml -n ${NAMESPACE}
+kubectl apply -f pod.yaml -n ${NAMESPACE}
+kubectl wait --for=condition=Ready pod/${APP_NAME} -n ${NAMESPACE} --timeout 120s
+
+# Success.
+echo "Looks good, 🎉"

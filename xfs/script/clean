@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLUSTER_NAME="$1"
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+# Call clean on each of the dependencies.
+NAMESPACE="xfs"
+kubectl delete daemonset do-csi-xfs-installer -n kube-system || true
+kubectl delete pod example-xfs -n ${NAMESPACE} || true
+kubectl delete pv example-xfs -n ${NAMESPACE} || true
+kubectl delete pvc example-xfs -n ${NAMESPACE} || true
+kubectl delete namespace xfs || true
+kubectl delete storageclass do-block-storage-xfs || true
+echo "Cleaned"
