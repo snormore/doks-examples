@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -z "${DIGITALOCEAN_ACCESS_TOKEN:-}" ]]; then
+    echo "DIGITALOCEAN_ACCESS_TOKEN is required"
+    exit 1
+fi
+export TF_VAR_api_token="${DIGITALOCEAN_ACCESS_TOKEN}"
+
+terraform destroy --auto-approve

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -z "${DIGITALOCEAN_ACCESS_TOKEN:-}" ]]; then
+    echo "DIGITALOCEAN_ACCESS_TOKEN is required"
+    exit 1
+fi
+export TF_VAR_api_token="${DIGITALOCEAN_ACCESS_TOKEN}"
+
+DEFAULT_CLUSTER_NAME="terraform-demo"
+CLUSTER_NAME=${1:-$DEFAULT_CLUSTER_NAME}
+
+# Create the cluster.
+terraform init
+terraform plan -var "cluster_name=${CLUSTER_NAME}"
+terraform apply -var "cluster_name=${CLUSTER_NAME}" --auto-approve
+
+# Grab the cluster kubeconfig.
+mkdir -p tmp
+export KUBECONFIG="$(pwd)/tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
+
+# Wait for cluster to be up and ready.
+echo "Waiting for nodes to be up and Ready"
+while ! kubectl get nodes; do
+    sleep 5
+done
+while [ "$(kubectl get nodes | wc -l | tr -d '[:space:]')" == "0" ]; do
+    sleep 5
+done
+kubectl wait --for=condition=Ready nodes --all --timeout=300s
+
+# Success
+echo "Looks good, 🎉"
