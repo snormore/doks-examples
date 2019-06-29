@@ -34,7 +34,7 @@ fi
 kubectl create namespace ${ISTIO_NAMESPACE} || true
 helm upgrade istio-init --install ${ISTIO_PATH}/install/kubernetes/helm/istio-init --namespace ${ISTIO_NAMESPACE}
 echo "Waiting for Istio CRDs to be created"
-kubectl wait --for=condition=Complete jobs -n ${ISTIO_NAMESPACE} --all
+kubectl wait --for=condition=Complete jobs -n ${ISTIO_NAMESPACE} --all --timeout 120s
 helm upgrade istio --install ${ISTIO_PATH}/install/kubernetes/helm/istio --namespace ${ISTIO_NAMESPACE} --values ${ISTIO_PATH}/install/kubernetes/helm/istio/values-istio-demo.yaml --set grafana.enabled=true
 kubectl scale deployment -n istio-system istio-policy istio-galley istio-ingressgateway istio-sidecar-injector --replicas 2
 kubectl wait --for=condition=Ready pods -l "release=istio" -n ${ISTIO_NAMESPACE} --timeout=120s

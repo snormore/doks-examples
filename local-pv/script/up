@@ -49,7 +49,7 @@ done
 echo "Validating ${APP_NAME}"
 
 echo "Creating test-file on the local volume from a pod on the first node"
-kubectl wait --for=condition=Ready pod/${APP_NAME}-1 -n ${NAMESPACE}
+kubectl wait --for=condition=Ready pod/${APP_NAME}-1 -n ${NAMESPACE} --timeout 120s
 kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- rm -f ${MOUNT_PATH}/test-file
 kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- ls -alh ${MOUNT_PATH}
 kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- bash -c "if [ -f ${MOUNT_PATH}/test-file ]; then exit 1; fi"
@@ -58,7 +58,7 @@ kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- ls -alh ${MOUNT_PATH}
 kubectl exec -it ${APP_NAME}-1 -n ${NAMESPACE} -- test -f ${MOUNT_PATH}/test-file
 
 echo "Checking for no test-file on the local volume from a pod on the other node"
-kubectl wait --for=condition=Ready pod/${APP_NAME}-2 -n ${NAMESPACE}
+kubectl wait --for=condition=Ready pod/${APP_NAME}-2 -n ${NAMESPACE} --timeout 120s
 kubectl exec -it ${APP_NAME}-2 -n ${NAMESPACE} -- ls -alh ${MOUNT_PATH}
 kubectl exec -it ${APP_NAME}-2 -n ${NAMESPACE} -- bash -c "if [ -f ${MOUNT_PATH}/test-file ]; then exit 1; fi"
 
