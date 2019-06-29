@@ -1,1 +1,7 @@
 tmp/
+
+# Terraform files.
+secrets.tfvars
+terraform.tfstate*
+.terraform.tfstate*
+.terraform/

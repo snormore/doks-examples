@@ -15,12 +15,15 @@ env:
     EXAMPLE=kubedb
   - CLUSTER_VERSION=1.14.1-do.4
     EXAMPLE=xfs
+  - CLUSTER_VERSION=1.14.1-do.4
+    EXAMPLE=terraform
 
 before_script:
   - go get -u github.com/digitalocean/doctl/cmd/doctl
   - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/kubectl
   - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
   - curl -sL https://run.linkerd.io/install | sh && export PATH=$PATH:$HOME/.linkerd2/bin
+  - curl -O https://releases.hashicorp.com/terraform/0.12.3/terraform_0.12.3_linux_amd64.zip && sudo unzip terraform_0.12.3_linux_amd64 -d /usr/local/bin/
 
 script:
   - cd $EXAMPLE && script/test
