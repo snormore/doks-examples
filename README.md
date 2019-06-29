@@ -26,6 +26,7 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - [monitoring](monitoring/) - combines [prometheus](prometheus/), [loki](loki/), and [linkerd](linkerd/) into a light-weight monitoring stack.
  - [HPA](hpa/) - automatically scales the number of pods in a replication controller, deployment or replica set based on observed CPU utilization (or, with custom metrics support, on some other application-provided metrics).
  - [VPA](vpa/) - will set the requests automatically based on usage and thus allow proper scheduling onto nodes so that appropriate resource amount is available for each pod.
+ - [Terraform](https://www.terraform.io/) - will provision a cluster using the DO Terraform provider, wait for everything to be running, and tear it down.
 
 ## Wishlist / TODO
 
