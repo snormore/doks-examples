@@ -2,6 +2,10 @@ language: go
 
 env:
   - CLUSTER_VERSION=1.14.1-do.4
+    EXAMPLE=terraform
+  - CLUSTER_VERSION=1.14.1-do.4
+    EXAMPLE=network-policy
+  - CLUSTER_VERSION=1.14.1-do.4
     EXAMPLE=monitoring
   - CLUSTER_VERSION=1.14.1-do.4
     EXAMPLE=istio
@@ -15,8 +19,6 @@ env:
     EXAMPLE=kubedb
   - CLUSTER_VERSION=1.14.1-do.4
     EXAMPLE=xfs
-  - CLUSTER_VERSION=1.14.1-do.4
-    EXAMPLE=terraform
 
 before_script:
   - go get -u github.com/digitalocean/doctl/cmd/doctl

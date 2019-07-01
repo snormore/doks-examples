@@ -1,0 +1,25 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hello
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: hello
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: hello
+        image: snormore/hello
+        ports:
+        - containerPort: 80
+          protocol: TCP
