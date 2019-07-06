@@ -57,7 +57,7 @@ function save_kubeconfig() {
 
 # Check for existence of the cluster and create if necessary.
 echo "Cluster: ${NAME}"
-if retry 3 doctl k8s cluster get ${NAME} &> /dev/null; then
+if retry 10 doctl k8s cluster get ${NAME} &> /dev/null; then
     echo "Cluster ${NAME} exists already, using it"
     save_kubeconfig ${NAME}
 else
