@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Grab the cluster name with a default of "network-policy-demo".
+CLUSTER_NAME=${1:-network-policy-demo}
+
+# Delete the client droplet.
+DROPLET_NAME="${CLUSTER_NAME}-client"
+DROPLET_ID=$(doctl compute droplet list -ojson | jq --raw-output --arg DROPLET_NAME "${DROPLET_NAME}" '.[] | select(.name == $DROPLET_NAME) | .id')
+if [ "${DROPLET_ID}" ]; then
+    doctl compute droplet delete ${DROPLET_ID} -f
+fi
+
+# Delete the client droplet SSH key.
+SSH_KEY_ID="$(doctl compute ssh-key list -ojson | jq --raw-output --arg NAME "${DROPLET_NAME}" '.[] | select(.name == $NAME) | .id')"
+if [ "${SSH_KEY_ID}" ]; then
+    doctl compute ssh-key delete ${SSH_KEY_ID} -f
+fi
+
+# Delete the cluster.
+../script/delete-cluster ${CLUSTER_NAME}

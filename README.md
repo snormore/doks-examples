@@ -18,6 +18,8 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
 
 ## Examples
 
+ - [Terraform](https://www.terraform.io/) - will provision a cluster using the DO Terraform provider, wait for everything to be running, and tear it down.
+ - [Network Policies](network-policy/) - a specification of how groups of pods are allowed to communicate with each other and other network endpoints.
  - [metrics-server](metrics-server/) - a cluster-wide aggregator of resource usage data.
  - [prometheus](prometheus/) - a systems and service monitoring system. It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts if some condition is observed to be true.
  - [loki](loki/) - a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus.
@@ -26,7 +28,6 @@ A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubern
  - [monitoring](monitoring/) - combines [prometheus](prometheus/), [loki](loki/), and [linkerd](linkerd/) into a light-weight monitoring stack.
  - [HPA](hpa/) - automatically scales the number of pods in a replication controller, deployment or replica set based on observed CPU utilization (or, with custom metrics support, on some other application-provided metrics).
  - [VPA](vpa/) - will set the requests automatically based on usage and thus allow proper scheduling onto nodes so that appropriate resource amount is available for each pod.
- - [Terraform](https://www.terraform.io/) - will provision a cluster using the DO Terraform provider, wait for everything to be running, and tear it down.
 
 ## Wishlist / TODO
 

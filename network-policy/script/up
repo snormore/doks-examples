@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+DEBUG=${DEBUG:-}
+if [ ! -z "${DEBUG}" ]; then
+    set -x
+fi
+set -euo pipefail
+
+# Grab the cluster name with a default of "istio".
+CLUSTER_NAME=${1:-network-policy-demo}
+
+# Create the cluster or use the existing.
+../script/create-cluster ${CLUSTER_NAME}
+
+# Grab the cluster kubeconfig.
+export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
+
+NODE_PORT="30000"
+NODE_IP=$(kubectl get nodes -ojson | jq --raw-output '.items[0].status.addresses[] | select(.type == "ExternalIP") | .address')
+NODE_URL="http://${NODE_IP}:${NODE_PORT}"
+
+# Install a sample Deployment + Service and wait for it to be Ready.
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl wait --for=condition=Ready pods -l app=hello --timeout 120s
+
+# Create SSH key for the droplet if necessary.
+echo "==> Creating SSH key for client droplet if necessary"
+DROPLET_NAME="${CLUSTER_NAME}-client"
+mkdir -p tmp
+SSH_KEY_PATH="${PWD}/tmp/client-id_rsa"
+if [ ! -f ${SSH_KEY_PATH} ]; then
+    ssh-keygen -t rsa -f ${SSH_KEY_PATH} -N ""
+fi
+SSH_KEY_NAME="${CLUSTER_NAME}-client"
+SSH_KEY_ID="$(doctl compute ssh-key list -ojson | jq --raw-output --arg NAME "${SSH_KEY_NAME}" '.[] | select(.name == $NAME) | .id')"
+if [ -z "${SSH_KEY_ID}" ]; then
+    doctl compute ssh-key create ${SSH_KEY_NAME} --public-key "$(cat ${SSH_KEY_PATH}.pub)"
+    SSH_KEY_ID="$(doctl compute ssh-key list -ojson | jq --raw-output --arg NAME "${SSH_KEY_NAME}" '.[] | select(.name == $NAME) | .id')"
+fi
+
+# Spin up client droplet for testing access to our sample workload.
+DROPLET_ID=$(doctl compute droplet list -ojson | jq --raw-output --arg DROPLET_NAME "${DROPLET_NAME}" '.[] | select(.name == $DROPLET_NAME) | .id')
+if [ -z "${DROPLET_ID}" ]; then
+    echo "==> Creating droplet for testing access to our workloads"
+    doctl compute droplet create \
+        ${DROPLET_NAME} \
+        --ssh-keys "${SSH_KEY_ID}" \
+        --region nyc1 \
+        --image ubuntu-18-04-x64 \
+        --size s-1vcpu-2gb -ojson \
+        --wait
+    DROPLET_ID=$(doctl compute droplet list -ojson | jq --raw-output --arg DROPLET_NAME "${DROPLET_NAME}" '.[] | select(.name == $DROPLET_NAME) | .id')
+else
+    echo "==> Using existing droplet ${DROPLET_NAME} (${DROPLET_ID})"
+fi
+DROPLET_IP=$(doctl compute droplet get ${DROPLET_ID} -ojson | jq --raw-output '.[0].networks.v4[] | select(.type == "public").ip_address')
+timeout 30 bash -c -- "while ! ssh -o 'StrictHostKeyChecking no' -i ${SSH_KEY_PATH} root@${DROPLET_IP} -- echo 'ok'; do sleep 5; done"
+
+test_network_policy () {
+    NETWORK_POLICY_YAML="${1}"
+
+    # Install the IP-whitelisted NetworkPolicy.
+    echo "${NETWORK_POLICY_YAML}" | kubectl delete -f - || true
+
+    # Confirm that we can access the sample workload via HTTP from our test clients.
+    echo "==> Testing connection to ${NODE_URL} from local and ${DROPLET_NAME} (${DROPLET_ID}) ${DROPLET_IP}"
+    curl ${NODE_URL} --connect-timeout 3
+    ssh -o "StrictHostKeyChecking no" -i ${SSH_KEY_PATH} root@${DROPLET_IP} -- curl ${NODE_URL} -s --connect-timeout 3
+
+    # Install the IP-whitelisted NetworkPolicy.
+    echo "==> Installing the NetworkPolicy restricting access from only the droplet IP ${DROPLET_IP}"
+    echo "${NETWORK_POLICY_YAML}"
+    echo "${NETWORK_POLICY_YAML}" | kubectl apply -f -
+
+    # Confirm that we can no longer access the sample workload via HTTP from the client without whitelisted IP.
+    echo "==> Testing connection to ${NODE_URL} from local, which should fail"
+    if curl ${NODE_URL} --connect-timeout 3; then
+        echo "ERROR: expected no access to ${NODE_URL} but was able to connect"
+        exit 1
+    fi
+
+    # Confirm that we can still access the sample workload via HTTP from the client with whitelisted IP.
+    echo "==> Testing connection to ${NODE_URL} from droplet ${DROPLET_NAME} (${DROPLET_ID}) ${DROPLET_IP}"
+    ssh -o "StrictHostKeyChecking no" -i ${SSH_KEY_PATH} root@${DROPLET_IP} -- curl ${NODE_URL} -s --connect-timeout 3
+
+    # Remove the NetworkPolicy and confirm that we can access the sample workload via HTTP from both client droplets again.
+    echo "${NETWORK_POLICY_YAML}" | kubectl delete -f -
+
+    # Confirm that we can access the sample workload via HTTP from our test clients again.
+    echo "==> Testing connection to ${NODE_URL} from local and droplet ${DROPLET_NAME} (${DROPLET_ID}) ${DROPLET_IP}"
+    curl ${NODE_URL} --connect-timeout 3
+    ssh -o "StrictHostKeyChecking no" -i ${SSH_KEY_PATH} root@${DROPLET_IP} -- curl ${NODE_URL} -s --connect-timeout 3
+}
+
+# Test the Kubernetes NetworkPolicy example.
+test_network_policy "$(cat network-policy.yaml | sed "s/\$ALLOWED_IP/${DROPLET_IP}/g")"
+
+# Test the Cilium NetworkPolicy example.
+test_network_policy "$(cat cilium-network-policy.yaml | sed "s/\$ALLOWED_IP/${DROPLET_IP}/g")"
+
+# Success.
+echo "Looks good, 🎉"
