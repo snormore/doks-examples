@@ -21,7 +21,7 @@ NODE_URL="http://${NODE_IP}:${NODE_PORT}"
 # Install a sample Deployment + Service and wait for it to be Ready.
 kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
-kubectl wait --for=condition=Ready pods -l app=hello
+kubectl wait --for=condition=Ready pods -l app=hello --timeout 120s
 
 # Create SSH key for the droplet if necessary.
 echo "==> Creating SSH key for client droplet if necessary"
