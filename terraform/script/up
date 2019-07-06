@@ -18,7 +18,7 @@ terraform apply -var "cluster_name=${CLUSTER_NAME}" --auto-approve
 # Grab the cluster kubeconfig.
 mkdir -p tmp
 export KUBECONFIG="$(pwd)/tmp/${CLUSTER_NAME}-kubeconfig.yaml"
-doctl k8s cluster kubeconfig show ${1} > ${KUBECONFIG}
+doctl k8s cluster kubeconfig show ${CLUSTER_NAME} > ${KUBECONFIG}
 
 # Wait for cluster to be up and ready.
 echo "Waiting for nodes to be up and Ready"
