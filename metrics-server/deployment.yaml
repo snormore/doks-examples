@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: metrics-server
+spec:
+  template:
+    spec:
+      containers:
+      - name: metrics-server
+        command:
+          - /metrics-server
+          - --cert-dir=/tmp
+          - --logtostderr
+          - --secure-port=8443
+          - --kubelet-preferred-address-types=InternalIP
+          - --kubelet-insecure-tls
+        ports:
+          - containerPort: 8443
+            name: https
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: https
+            scheme: HTTPS
+          initialDelaySeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: https
+            scheme: HTTPS
+          initialDelaySeconds: 20
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["all"]
+          readOnlyRootFilesystem: true
+          runAsGroup: 10001
+          runAsNonRoot: true
+          runAsUser: 10001

@@ -15,16 +15,19 @@ CLUSTER_NAME=${1:-metrics-demo}
 # Grab the cluster kubeconfig.
 export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 
-# Install Helm/tiller and wait for it to be Ready.
-(
-    cd ../helm
-    script/up ${CLUSTER_NAME}
-)
+git clone https://github.com/kubernetes-incubator/metrics-server \
+  || true
+
+# update to metrics-server upstream master at the time this script was updated
+git -C metrics-server \
+  reset --hard ad1de3e56d98f25dc436ba08a6097d44375c8bc6
 
 # Install metrics-server
-NAMESPACE="metrics"
-echo "Install metrics-server via Helm"
-helm upgrade metrics-server --install --namespace ${NAMESPACE} -f ../metrics-server/values.yaml stable/metrics-server
+NAMESPACE=kube-system
+echo "Install metrics-server via kustomize + kubectl"
+#helm upgrade metrics-server --install --namespace ${NAMESPACE} -f ../metrics-server/values.yaml stable/metrics-server
+kubectl kustomize . | kubectl apply -f -
+
 echo "Waiting for pods to be Ready"
-kubectl wait --for=condition=Ready pods -l "release=metrics-server" -n ${NAMESPACE} --timeout=120s
+kubectl wait --for=condition=Ready pods -l "k8s-app=metrics-server" -n ${NAMESPACE} --timeout=120s
 echo "🎉"

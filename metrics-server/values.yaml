@@ -1,5 +1,0 @@
-args:
-  # DOKS currently doesn't resolve node names from within cluster workloads.
-  - --kubelet-preferred-address-types=InternalIP
-  # DOKS currently has self-signed kubelet internal serving certificates.
-  - --kubelet-insecure-tls
