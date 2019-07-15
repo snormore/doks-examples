@@ -25,7 +25,6 @@ git -C metrics-server \
 # Install metrics-server
 NAMESPACE=kube-system
 echo "Install metrics-server via kustomize + kubectl"
-#helm upgrade metrics-server --install --namespace ${NAMESPACE} -f ../metrics-server/values.yaml stable/metrics-server
 kubectl kustomize . | kubectl apply -f -
 
 echo "Waiting for pods to be Ready"
