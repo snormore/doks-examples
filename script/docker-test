@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+docker build -t doks-examples .
+docker run --rm -it -v $(pwd):/app -w /app -e DIGITALOCEAN_ACCESS_TOKEN=$DIGITALOCEAN_ACCESS_TOKEN doks-examples bash -c "cd $1 && script/test"
