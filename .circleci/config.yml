@@ -7,15 +7,17 @@ jobs:
       - image: circleci/golang:1.12
     steps:
       - checkout
-      - setup_remote_docker
-      - run: docker pull snormore/doks-examples-test
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: docker pull snormore/doks-examples
 
   test-terraform:
     docker:
       - image: circleci/golang:1.12
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: script/docker-test terraform
 
   test-network-policy:
@@ -23,7 +25,8 @@ jobs:
       - image: circleci/golang:1.12
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: script/docker-test network-policy
 
   test-monitoring:
@@ -31,7 +34,8 @@ jobs:
       - image: circleci/golang:1.12
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: script/docker-test monitoring
 
   test-istio:
@@ -39,7 +43,8 @@ jobs:
       - image: circleci/golang:1.12
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: script/docker-test istio
 
 workflows:
