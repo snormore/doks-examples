@@ -1,6 +1,6 @@
 A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubernetes/) examples with scripts for setup and testing.
 
-[![Build Status](https://travis-ci.org/snormore/doks-examples.svg?branch=master)](https://travis-ci.org/snormore/doks-examples)
+[![CircleCI](https://circleci.com/gh/snormore/doks-examples.svg?style=svg)](https://circleci.com/gh/snormore/doks-examples)
 
 ## Usage
  - `export DIGITALOCEAN_ACCESS_TOKEN=your-access-token`
