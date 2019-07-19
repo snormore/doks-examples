@@ -1,0 +1,61 @@
+version: 2
+
+jobs:
+
+  build:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker build -t doks-examples .
+
+  test-terraform:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: script/docker-run terraform
+
+  test-network-policy:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: script/docker-run network-policy
+
+  test-monitoring:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: script/docker-run monitoring
+
+  test-istio:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: script/docker-run istio
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+      - test-terraform:
+          requires:
+            - build
+      - test-network-policy:
+          requires:
+            - build
+      - test-monitoring:
+          requires:
+            - build
+      - test-istio:
+          requires:
+            - build
