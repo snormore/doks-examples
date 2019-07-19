@@ -13,7 +13,7 @@ NAME="${1}"
 REGION="${REGION:-sfo2}"
 NODE_SIZE="${NODE_SIZE:-s-1vcpu-2gb}"
 NODE_COUNT="${NODE_COUNT:-2}"
-VERSION="${CLUSTER_VERSION:-1.14.2-do.0}"
+VERSION="${CLUSTER_VERSION:-latest}"
 
 # Retries a command on failure.
 # $1 - the max number of attempts
