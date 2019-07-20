@@ -77,7 +77,7 @@ else
     while ! kubectl get nodes; do
         sleep 5
     done
-    while [ "$(kubectl get nodes | wc -l | tr -d '[:space:]')" == "0" ]; do
+    while [ "$(kubectl get nodes | wc -l | tr -d '[:space:]')" != "${NODE_COUNT}" ]; do
         sleep 5
     done
     kubectl wait --for=condition=Ready nodes --all --timeout=300s
