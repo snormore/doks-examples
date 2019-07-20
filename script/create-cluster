@@ -13,7 +13,7 @@ NAME="${1}"
 REGION="${REGION:-sfo2}"
 NODE_SIZE="${NODE_SIZE:-s-1vcpu-2gb}"
 NODE_COUNT="${NODE_COUNT:-2}"
-DEFAULT_VERSION="$(doctl k8s options versions -ojson | jq --raw-output 'first(.[] | select(.slug | test("^1.12.[0-9]+-do.[0-9]+$")) | .slug)')"
+DEFAULT_VERSION="$(doctl k8s options versions -ojson | jq --raw-output 'first(.[] | select(.slug | test("^1.14.[0-9]+-do.[0-9]+$")) | .slug)')"
 VERSION="${CLUSTER_VERSION:-${DEFAULT_VERSION}}"
 
 # Retries a command on failure.
