@@ -12,6 +12,6 @@ RUN go get -u github.com/digitalocean/doctl/cmd/doctl && \
     curl -O https://releases.hashicorp.com/terraform/0.12.3/terraform_0.12.3_linux_amd64.zip && \
     unzip terraform_0.12.3_linux_amd64 -d /usr/local/bin/
 
-ENV PATH $PATH:$HOME/.linkerd2/bin
+ENV PATH $PATH:/root/.linkerd2/bin
 
 CMD [ "bash" ]
