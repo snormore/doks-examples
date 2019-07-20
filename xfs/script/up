@@ -21,10 +21,6 @@ MOUNT_PATH="/mnt"
 FIRST_NODE_NAME="$(kubectl get nodes -ojsonpath='{.items[0].metadata.name}')"
 SECOND_NODE_NAME="$(kubectl get nodes -ojsonpath='{.items[1].metadata.name}')"
 
-# Install XFS dependencies installer.
-# TODO: this is temporary until support is shipped in the upstream github.com/digitalocean/csi-digitalocean
-kubectl patch daemonset csi-do-node -n kube-system -p '{"spec":{"template":{"spec":{"containers":[{"name":"csi-do-plugin","image":"snormore/do-csi-plugin:v1.1.0-dev-xfs"}]}}}}'
-
 # Install.
 echo "Deploying ${APP_NAME} PV"
 kubectl create namespace ${NAMESPACE} || true
