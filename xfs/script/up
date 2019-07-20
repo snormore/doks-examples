@@ -31,7 +31,7 @@ kubectl create namespace ${NAMESPACE} || true
 kubectl apply -f storage-class.yaml -n ${NAMESPACE}
 kubectl apply -f pvc.yaml -n ${NAMESPACE}
 kubectl apply -f pod.yaml -n ${NAMESPACE}
-kubectl wait --for=condition=Ready pod/${APP_NAME} -n ${NAMESPACE} --timeout 120s
+kubectl wait --for=condition=Ready pod/${APP_NAME} -n ${NAMESPACE} --timeout 300s
 
 # Success.
 echo "Looks good, 🎉"

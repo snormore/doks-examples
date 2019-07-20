@@ -54,7 +54,7 @@ else
     echo "==> Using existing droplet ${DROPLET_NAME} (${DROPLET_ID})"
 fi
 DROPLET_IP=$(doctl compute droplet get ${DROPLET_ID} -ojson | jq --raw-output '.[0].networks.v4[] | select(.type == "public").ip_address')
-timeout 30 bash -c -- "while ! ssh -o 'StrictHostKeyChecking no' -i ${SSH_KEY_PATH} root@${DROPLET_IP} -- echo 'ok'; do sleep 5; done"
+timeout 60 bash -c -- "while ! ssh -o 'StrictHostKeyChecking no' -i ${SSH_KEY_PATH} root@${DROPLET_IP} -- echo 'ok'; do sleep 5; done"
 
 test_network_policy () {
     NETWORK_POLICY_YAML="${1}"
