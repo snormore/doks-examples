@@ -9,13 +9,6 @@ jobs:
       - checkout
       - run: cd terraform && script/test
 
-  test-network-policy:
-    docker:
-      - image: snormore/doks-examples
-    steps:
-      - checkout
-      - run: cd network-policy && script/test
-
   test-monitoring:
     docker:
       - image: snormore/doks-examples
@@ -70,7 +63,6 @@ workflows:
   build:
     jobs:
       - test-terraform
-      - test-network-policy
       - test-monitoring
       - test-istio
       - test-local-pv
