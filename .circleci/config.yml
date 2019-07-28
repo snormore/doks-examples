@@ -1,0 +1,72 @@
+version: 2
+
+jobs:
+
+  test-terraform:
+    docker:
+      - image: snormore/doks-examples
+    steps:
+      - checkout
+      - run: cd terraform && script/test
+
+  test-monitoring:
+    docker:
+      - image: snormore/doks-examples
+    steps:
+      - checkout
+      - run: cd monitoring && script/test
+
+  test-istio:
+    docker:
+      - image: snormore/doks-examples
+    steps:
+      - checkout
+      - run: cd istio && script/test
+
+  test-local-pv:
+    docker:
+      - image: snormore/doks-examples
+    steps:
+      - checkout
+      - run: cd local-pv && script/test
+
+  test-hpa:
+    docker:
+      - image: snormore/doks-examples
+    steps:
+      - checkout
+      - run: cd hpa && script/test
+
+  test-vpa:
+    docker:
+      - image: snormore/doks-examples
+    steps:
+      - checkout
+      - run: cd vpa && script/test
+
+  test-kubedb:
+    docker:
+      - image: snormore/doks-examples
+    steps:
+      - checkout
+      - run: cd kubedb && script/test
+
+  test-xfs:
+    docker:
+      - image: snormore/doks-examples
+    steps:
+      - checkout
+      - run: cd xfs && script/test
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test-terraform
+      - test-monitoring
+      - test-istio
+      - test-local-pv
+      - test-hpa
+      - test-vpa
+      - test-kubedb
+      - test-xfs

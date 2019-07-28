@@ -1,20 +1,12 @@
 A repo of [DigitalOcean Kubernetes](https://www.digitalocean.com/products/kubernetes/) examples with scripts for setup and testing.
 
-[![Build Status](https://travis-ci.org/snormore/doks-examples.svg?branch=master)](https://travis-ci.org/snormore/doks-examples)
+[![CircleCI](https://circleci.com/gh/snormore/doks-examples.svg?style=svg)](https://circleci.com/gh/snormore/doks-examples)
 
 ## Usage
-
- - Install [`doctl`](https://github.com/digitalocean/doctl) and authenticate with your account using `doctl auth init`.
- - `cd` into the directory of an example and run `script/up` to spin up a cluster with the example stack, and `script/down` to delete the cluster and everything on it.
+ - `export DIGITALOCEAN_ACCESS_TOKEN=your-access-token`
+ - `script/docker-up example-name` to spin up a cluster with the example stack, `script/docker-down example-name` to destroy the cluster.
  - If you hit a problem, [open an issue](https://github.com/snormore/doks-examples/issues/new) or [PR the fix](https://github.com/snormore/doks-examples/pulls)!
- - Note that associated DigitalOcean LBs and Volumes are not cleaned up by the scripts, you have to do that manually for now.
-
-## Prerequisites
-
- - [doctl](https://github.com/digitalocean/doctl#installing-doctl)
- - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
- - [helm](https://github.com/helm/helm/blob/master/docs/install.md)
- - [linkerd](https://linkerd.io/2/getting-started/#step-1-install-the-cli) if you're using the [linkerd](linkerd/) or [monitoring](monitoring/) examples
+ - Note that associated DigitalOcean LBs and Volumes may not always be cleaned up on failure of these scripts, destroy manually if necessary.
 
 ## Examples
 

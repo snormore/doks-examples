@@ -13,7 +13,8 @@ NAME="${1}"
 REGION="${REGION:-sfo2}"
 NODE_SIZE="${NODE_SIZE:-s-1vcpu-2gb}"
 NODE_COUNT="${NODE_COUNT:-2}"
-VERSION="${CLUSTER_VERSION:-1.14.2-do.0}"
+DEFAULT_VERSION="$(doctl k8s options versions -ojson | jq --raw-output 'first(.[] | select(.slug | test("^1.14.[0-9]+-do.[0-9]+$")) | .slug)')"
+VERSION="${CLUSTER_VERSION:-${DEFAULT_VERSION}}"
 
 # Retries a command on failure.
 # $1 - the max number of attempts
@@ -62,7 +63,7 @@ if retry 10 doctl k8s cluster get ${NAME} &> /dev/null; then
     save_kubeconfig ${NAME}
 else
     # Create the cluster.
-    echo "Creating cluster ${NAME}"
+    echo "Creating cluster ${NAME} on ${VERSION}"
     doctl k8s cluster create ${NAME} \
         --region ${REGION} \
         --node-pool "name=${NAME};size=${NODE_SIZE};count=${NODE_COUNT}" \
@@ -77,7 +78,7 @@ else
     while ! kubectl get nodes; do
         sleep 5
     done
-    while [ "$(kubectl get nodes | wc -l | tr -d '[:space:]')" == "0" ]; do
+    while [ "$(kubectl get nodes --no-headers | wc -l | tr -d '[:space:]')" != "${NODE_COUNT}" ]; do
         sleep 5
     done
     kubectl wait --for=condition=Ready nodes --all --timeout=300s
