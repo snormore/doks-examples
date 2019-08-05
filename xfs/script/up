@@ -17,9 +17,6 @@ export KUBECONFIG="tmp/${CLUSTER_NAME}-kubeconfig.yaml"
 # Set some variables.
 NAMESPACE=${NAMESPACE:-xfs}
 APP_NAME="example-xfs"
-MOUNT_PATH="/mnt"
-FIRST_NODE_NAME="$(kubectl get nodes -ojsonpath='{.items[0].metadata.name}')"
-SECOND_NODE_NAME="$(kubectl get nodes -ojsonpath='{.items[1].metadata.name}')"
 
 # Install.
 echo "Deploying ${APP_NAME} PV"
